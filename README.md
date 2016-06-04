@@ -1,2 +1,2 @@
 # Zoho_Alexa
-# AmazonAlexa Integration with Zoho Creator
+# Amazon Alexa Voice Service Integration with Zoho Creator
