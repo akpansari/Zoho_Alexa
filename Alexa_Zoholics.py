@@ -56,6 +56,7 @@ def on_intent(intent_request, session):
     intent = intent_request['intent']
     intent_name = intent_request['intent']['name']
 
+
     # Dispatch to your skill's intent handlers
     if intent_name == "ZohoIntent":
         return zoho_get_data(intent, session)
@@ -67,6 +68,10 @@ def on_intent(intent_request, session):
         return get_Audience_response(intent, session)
     elif intent_name == "Accountant_Intent":
         return zoho_lead_accountant(intent, session)
+    elif intent_name == "Austin_Intent":
+        return zoho_lead_austin(intent, session)
+    elif intent_name == "Lead_Intent":
+        return zoho_lead_count(intent, session)
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
@@ -145,6 +150,8 @@ def build_response(session_attributes, speechlet_response):
         'response': speechlet_response
     }
 
+# -------------------Who is the admin of my CRM ?------------------
+
 def zoho_get_data(intent, session):
     Auth = '8b1c24432b8cd3274df434039e98f162'
     url = 'https://crm.zoho.com/crm/private/json/Users/getUsers?authtoken=' + Auth + '&scope=crmapi&type=AllUsers'
@@ -158,15 +165,34 @@ def zoho_get_data(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
 
+# --------------How many of my leads accountants ?--------------
+
+def zoho_lead_accountant(intent, session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Leads_Accountants/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    number =  str(len(r_decoded["CRM_Leads"]))
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = 'You have ' + number + ' leads who are accountants.'
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+
+# ------------Salesforce / Zoho------------------
+
 def get_SF_response(intent, session):
 
     session_attributes = {}
-    card_title = "Salesforce or Zoho"
+    card_title = None
     speech_output = "Are you kidding me? Ofcourse. Zoho is better."
     reprompt_text = None
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
+
+# --------------Greet the audience at Zoholics----------------
 
 def get_Audience_response(intent, session):
 
@@ -177,3 +203,34 @@ def get_Audience_response(intent, session):
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
+
+# ---------- Leads from Austin--------------------
+
+def zoho_lead_accountant(intent, session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Leads_Austin/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    number =  str(len(r_decoded["CRM_Leads"]))
+    final = ""
+    for lead in r_decoded["CRM_Leads"]:
+        final += lead['First_Name'] + " " + lead['Last_Name'] + " " + "who is a " + lead['Title'] + "."
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "There are " + number + " leads who are from Austin, Texas. They are " + final
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+# ---------to count the number of leads in CRM_Leads_Report
+
+def zoho_lead_count(intent, session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/CRM_Leads_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    number =  str(len(r_decoded["CRM_Leads"]))
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = 'You have ' + number + ' leads in your CRM.'
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
