@@ -65,6 +65,8 @@ def on_intent(intent_request, session):
         return get_SF_response(intent, session)
     elif intent_name == "Audience_Intent":
         return get_Audience_response(intent, session)
+    elif intent_name == "Accountant_Intent":
+        return zoho_lead_accountant(intent, session)
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
