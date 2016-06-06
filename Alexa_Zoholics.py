@@ -63,7 +63,7 @@ def on_intent(intent_request, session):
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "SF_Intent":
-        return get_SF_response(intent, session)
+        return get_SF_response(intent,session)
     elif intent_name == "Audience_Intent":
         return get_Audience_response(intent, session)
     elif intent_name == "Accountant_Intent":
@@ -98,7 +98,7 @@ def get_welcome_response():
     session_attributes = {}
     card_title = "Welcome"
     speech_output = "Welcome to  Zoho. A leading provider of Cloud"\
-                    "Applications for Small and Medium businesses. How"\
+                    " Applications for Small and Medium businesses. How"\
                     "can I help you today?"
 
     # If the user either does not reply to the welcome message or says something
@@ -116,7 +116,7 @@ def handle_session_end_request():
     # Setting this to true ends the session and exits the skill.
     should_end_session = True
     return build_response({}, build_speechlet_response(
-        card_title, speech_output, None, should_end_session))
+        card_title, speech_output, should_end_session))
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -175,38 +175,37 @@ def zoho_lead_accountant(intent, session):
     session_attributes = {}
     reprompt_text = None
     should_end_session = True
-    speech_output = 'You have ' + number + ' leads who are accountants.'
+    speech_output = 'You have ' + number + 'number of leads who are accountants.'
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
 
-
-# ------------Salesforce / Zoho------------------
+# ------------Salesforce or Zoho --------------
 
 def get_SF_response(intent, session):
 
     session_attributes = {}
-    card_title = None
+    card_title = "Salesforce or Zoho"
     speech_output = "Are you kidding me? Ofcourse. Zoho is better."
     reprompt_text = None
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
-# --------------Greet the audience at Zoholics----------------
+# ------------Welcome the audience ---------------
 
 def get_Audience_response(intent, session):
 
     session_attributes = {}
-    card_title = None
-    speech_output = "Hello Everyone! I hope you had an amazing time in Zoholics !"
+    card_title = "Welcome the audience"
+    speech_output = "Hello Everyone! I hope you had an amazing time in Zoholics Sales and Marketing !"
     reprompt_text = None
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
-
+        
 # ---------- Leads from Austin--------------------
 
-def zoho_lead_accountant(intent, session):
+def zoho_lead_austin(intent, session):
     url = 'https://creator.zoho.com/api/json/alexa/view/Leads_Austin/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
     response = urllib2.urlopen(url).read()
     r_decoded = json.loads(response)
