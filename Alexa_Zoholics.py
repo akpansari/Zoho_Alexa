@@ -72,6 +72,8 @@ def on_intent(intent_request, session):
         return zoho_lead_austin(intent, session)
     elif intent_name == "Lead_Intent":
         return zoho_lead_count(intent, session)
+    elif intent_name == "Top_Accounts_Intent":
+        return zoho_top_accounts(intent, session)
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
@@ -112,7 +114,7 @@ def get_welcome_response():
 def handle_session_end_request():
     card_title = "Session Ended"
     speech_output = "Thank you for trying Zoho. " \
-                    "Have a nice day! "
+                    " Have a nice day! "
     # Setting this to true ends the session and exits the skill.
     should_end_session = True
     return build_response({}, build_speechlet_response(
@@ -202,8 +204,8 @@ def get_Audience_response(intent, session):
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
-        
-# ---------- Leads from Austin--------------------
+
+# ---------- -------Leads from Austin--------------------
 
 def zoho_lead_austin(intent, session):
     url = 'https://creator.zoho.com/api/json/alexa/view/Leads_Austin/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
@@ -212,7 +214,7 @@ def zoho_lead_austin(intent, session):
     number =  str(len(r_decoded["CRM_Leads"]))
     final = ""
     for lead in r_decoded["CRM_Leads"]:
-        final += lead['First_Name'] + " " + lead['Last_Name'] + " " + "who is a " + lead['Title'] + "."
+        final += lead['First_Name'] + " " + lead['Last_Name'] + " " + "who is a " + lead['Title'] + ". "
     session_attributes = {}
     reprompt_text = None
     should_end_session = True
@@ -220,7 +222,7 @@ def zoho_lead_austin(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
 
-# ---------to count the number of leads in CRM_Leads_Report
+# ---------to count the number of leads in CRM_Leads_Report---------------------
 
 def zoho_lead_count(intent, session):
     url = 'https://creator.zoho.com/api/json/alexa/view/CRM_Leads_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
@@ -230,6 +232,25 @@ def zoho_lead_count(intent, session):
     session_attributes = {}
     reprompt_text = None
     should_end_session = True
-    speech_output = 'You have ' + number + ' leads in your CRM.'
+    speech_output = 'You have ' + number + ' leads in your CRM. '
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+# --------------top five customers in Zoho CRM -----------------------
+
+def zoho_top_accounts(intent,session):
+    import urllib2
+    import json
+    url = 'https://creator.zoho.com/api/json/alexa/view/Total_Business_Per_Account_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    output = ""
+    for i in range(0,5):
+          output += r_decoded["Total_Business_Per_Account"][i]["Company_Name"] + " "\
+        "with" + " " + r_decoded["Total_Business_Per_Account"][i]["Amount"] + " " + "of closed deals. "
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "Your top five Accounts are :- " + " " + output
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
