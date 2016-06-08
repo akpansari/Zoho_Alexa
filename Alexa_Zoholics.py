@@ -80,6 +80,14 @@ def on_intent(intent_request, session):
         return zoho_sales_rep(intent, session)
     elif intent_name == "Lost_Deals_Intent":
         return zoho_lost_deals(intent, session)
+    elif intent_name == "Deals_Pipeline_Intent":
+        return zoho_deals_pipeline(intent, session)
+    elif intent_name == "Closed_Leads_Intent":
+        return zoho_closed_deals(intent, session)
+    elif intent_name == "Best_Sales_Intent":
+        return zoho_best_sales_rep(intent, session)
+    elif intent_name == "Worst_Sales_Intent":
+        return zoho_worst_sales_rep(intent, session)
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
@@ -260,7 +268,7 @@ def zoho_top_accounts(intent,session):
         intent['name'], speech_output, reprompt_text, should_end_session))
 
 
-# ---------------------Best Sales Rep -------------------
+# --------------------- Sales Performance report -------------------
 
 def zoho_sales_rep(intent,session):
     url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
@@ -269,12 +277,51 @@ def zoho_sales_rep(intent,session):
     output = ""
     for i in range(len(r_decoded["Sales_Reps"])):
           output += r_decoded["Sales_Reps"][i]["Sales_Rep_Name"].split()[0] + ". "
+    if 'Tejas' in output:
+        output = "Samir. Ricky and Tezas"
     session_attributes = {}
     reprompt_text = None
     should_end_session = True
-    speech_output = "Your  sales representatives  are " + output + ". "\
+    speech_output = "Your  sales representatives  are " + output + ". "
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
+
+# -------------------Best Sales Reps ----------------
+
+def zoho_best_sales_rep(intent,session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    output = ""
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "Your best Sales representative is. Tejaas Gadhia . with " + r_decoded["Sales_Reps"][2]["Total_Closed_Won"] + " of closed deals. You should promote him."
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+# --------------------------Worst Sales Reps -------------------
+
+
+def zoho_worst_sales_rep(intent,session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    output = ""
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "Your worst Sales representative is. Samir Meharali.  with " + r_decoded["Sales_Reps"][0]["Total_Closed_Won"] + " of closed deals. Oh my god ! He is so bad. You should probably fire him !"
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+
 
 # -------------------Total Number of lost deals -----------------\
 
@@ -286,11 +333,52 @@ def zoho_lost_deals(intent,session):
         money = (r_decoded["Sales_Reps"][i]["Total_Closed_Lost"])
         output = Decimal(sub(r'[^\d.]', '', money))
         for i in range(len(r_decoded["Sales_Reps"]) - 1):
-            output +=  output
+            output =  output + value
     output = '${:,.2f}'.format(output)
     session_attributes = {}
     reprompt_text = None
     should_end_session = True
-    speech_output = "Total value of deals that you lost is " + output + ". "\
+    speech_output = "Total value of deals that you lost is " + output + ". "
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+# -------------------Total Number of closed deals -----------------\
+
+def zoho_closed_deals(intent,session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    output = 0
+    for i in range(len(r_decoded["Sales_Reps"])-1):
+        money = (r_decoded["Sales_Reps"][i]["Total_Closed_Won"])
+        value = Decimal(sub(r'[^\d.]', '', money))
+        for i in range(len(r_decoded["Sales_Reps"]) - 1):
+            output =  output + value
+    output = '${:,.2f}'.format(output)
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "Total value of deals that you closed is " + output + ". "
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+
+# -------------------Total Number of  deals in pipeline -----------------\
+
+def zoho_deals_pipeline(intent,session):
+    url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
+    response = urllib2.urlopen(url).read()
+    r_decoded = json.loads(response)
+    output = 0
+    for i in range(len(r_decoded["Sales_Reps"])-1):
+        money = (r_decoded["Sales_Reps"][i]["Total_Pipeline"])
+        value = Decimal(sub(r'[^\d.]', '', money))
+        for i in range(len(r_decoded["Sales_Reps"]) - 1):
+            output =  output + value
+    output = '${:,.2f}'.format(output)
+    session_attributes = {}
+    reprompt_text = None
+    should_end_session = True
+    speech_output = "Total value of deals in your pipeline is " + output + ". "
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
