@@ -329,6 +329,7 @@ def zoho_lost_deals(intent,session):
     url = 'https://creator.zoho.com/api/json/alexa/view/Sales_Reps_Report/zc_ownername=tejaszoholics16&scope=creatorapi&authtoken=477ebc164fe043f942f0cac15398729f&raw=true'
     response = urllib2.urlopen(url).read()
     r_decoded = json.loads(response)
+    output = 0
     for i in range(len(r_decoded["Sales_Reps"])-1):
         money = (r_decoded["Sales_Reps"][i]["Total_Closed_Lost"])
         output = Decimal(sub(r'[^\d.]', '', money))
